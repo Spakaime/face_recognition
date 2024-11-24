@@ -1,0 +1,64 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Système de Contrôle Biométrique{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'home' %}" class="text-xl font-bold">
+                    Contrôle Biométrique
+                </a>
+                <div class="space-x-4">
+                    <a href="{% url 'student_list' %}" class="hover:text-gray-200">
+                        Étudiants
+                    </a>
+                    <a href="{% url 'verification' %}" class="hover:text-gray-200">
+                        Vérification
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'logout' %}" class="hover:text-gray-200">
+                            Déconnexion
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mx-auto px-4 mt-4">
+            {% for message in messages %}
+                <div class="p-4 rounded {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Contenu principal -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            &copy; {% now "Y" %} Système de Contrôle Biométrique. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

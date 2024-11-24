@@ -1,0 +1,106 @@
+<!-- templates/app_biometrique/student_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Détails de l'étudiant - {{ student.matricule }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Informations personnelles -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Informations personnelles</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 mb-4">
+                {% if student.photo %}
+                <img src="{{ student.photo.url }}" 
+                     alt="Photo de {{ student.user.get_full_name }}"
+                     class="w-32 h-32 object-cover rounded-full mx-auto">
+                {% endif %}
+            </div>
+            <div>
+                <p class="text-gray-600">Matricule</p>
+                <p class="font-semibold">{{ student.matricule }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Nom complet</p>
+                <p class="font-semibold">{{ student.user.get_full_name }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Email</p>
+                <p class="font-semibold">{{ student.user.email }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Date d'inscription</p>
+                <p class="font-semibold">{{ student.created_at|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statut des paiements -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Statut des paiements</h2>
+        {% for payment in student.payments.all %}
+        <div class="mb-4 p-4 {% if payment.get_payment_percentage >= 50 %}bg-green-100{% else %}bg-yellow-100{% endif %} rounded">
+            <p class="font-semibold">Année académique : {{ payment.academic_year }}</p>
+            <p>Montant payé : {{ payment.amount }} FCFA</p>
+            <p>Pourcentage : {{ payment.get_payment_percentage|floatformat:1 }}%</p>
+            <p class="text-sm text-gray-600">Date : {{ payment.payment_date|date:"d/m/Y" }}</p>
+        </div>
+        {% empty %}
+        <p class="text-gray-500">Aucun paiement enregistré</p>
+        {% endfor %}
+    </div>
+
+    <!-- Historique des accès -->
+    <div class="col-span-1 md:col-span-2 bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Historique des accès</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Session d'examen
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Statut
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Détails
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for log in student.access_logs.all %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ log.timestamp|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ log.exam_session.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if log.access_granted %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ log.access_granted|yesno:"Autorisé,Refusé" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div>Face: {{ log.facial_match|yesno:"✓,✗" }}</div>
+                            <div>Empreinte: {{ log.fingerprint_match|yesno:"✓,✗" }}</div>
+                            <div>Paiement: {{ log.payment_valid|yesno:"✓,✗" }}</div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            Aucun historique d'accès
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

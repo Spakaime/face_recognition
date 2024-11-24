@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from . import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('students/', views.StudentListView.as_view(), name='student_list'),
+    path('students/<int:pk>/', views.StudentDetailView.as_view(), name='student_detail'),
+    path('verify-biometrics/', views.BiometricVerificationView.verify_biometrics, name='verify_biometrics'),
 ]
